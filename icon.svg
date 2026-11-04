@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Usage Printer">
+  <rect x="6" y="34" width="52" height="22" rx="6" fill="#567c6f" opacity="0.16"/>
+  <rect x="6" y="34" width="52" height="22" rx="6" fill="none" stroke="#567c6f" stroke-width="3"/>
+  <rect x="16" y="40" width="32" height="4" rx="2" fill="#567c6f"/>
+  <path d="M14 34h36v-4H14z" fill="#c9a86a" opacity="0.5"/>
+  <g fill="#c9a86a">
+    <path d="M18 14h6v6h-6z"/><path d="M28 14h6v6h-6z"/><path d="M38 14h6v6h-6z"/>
+    <path d="M18 24h6v6h-6z"/><path d="M38 24h6v6h-6z"/>
+    <path d="M18 34h6v-2h-6z" opacity="0"/>
+  </g>
+  <path d="M44 24h6v6h-6z" fill="#c9a86a" opacity="0.35"/>
+  <circle cx="52" cy="50" r="2.6" fill="#c9a86a"/>
+</svg>

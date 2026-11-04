@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Usage Printer",
+    "description": "A small receipt printer in the sidebar footer: a dot-matrix display shows the balance level and the peak/off-peak price window, and hovering feeds out a receipt with the details."
+  }
+}
