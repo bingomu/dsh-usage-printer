@@ -1,4 +1,4 @@
 # dsh-usage-printer — 侧栏小票机（Host 半负责读余额与峰谷，Client 半负责点阵屏与小票）
 - insert:
     - id: usage-printer
-      name: '@local/dsh-usage-printer'
+      name: '@bingomu/dsh-usage-printer'
