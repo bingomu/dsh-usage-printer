@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- 修复客户端模块 id 仍是 `@local/dsh-usage-printer`，导致侧栏插槽注册不上、卡片不显示
+
 ## 1.0.1
 
 - 修复 `cordis.patch.yml` 里的包名仍是 `@local/dsh-usage-printer`，导致插件行找不到包、侧栏不显示

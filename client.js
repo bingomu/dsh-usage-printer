@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@local/dsh-usage-printer',
+  id: '@bingomu/dsh-usage-printer',
   factory(require) {
     const React = require('react')
     const { useCallback, useEffect, useRef, useState } = React
