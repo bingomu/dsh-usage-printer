@@ -23,7 +23,7 @@ Host 半只注册一个本机路由 `GET /api/usage-printer`，30 秒缓存；Cl
 
 ```bash
 # GitHub（推荐，和你其它插件一致）
-dsh plugin add github:bingomu/dsh-usage-printer#v1.0.0
+dsh plugin add github:bingomu/dsh-usage-printer#v1.0.3
 
 # npm（可选）
 npm i -g @bingomu/dsh-usage-printer
@@ -33,6 +33,8 @@ npm i -g @bingomu/dsh-usage-printer
 ```
 
 适配 DSH `0.2.1-rc.5`（`engines.dsh` 已声明）。
+
+> ⚠️ 请安装 **v1.0.2 及以上**。v1.0.0 / v1.0.1 的客户端模块 id 写错，装上后侧栏不显示卡片。
 
 ## 已知限制
 
