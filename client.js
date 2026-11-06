@@ -51,11 +51,15 @@ window.__ModuleLoader__.load({
       }
       const width = x - pitch - extra
       const height = 7 * pitch - gap
+      const w = Math.round((size * width) / height * 100) / 100
       return h('svg', {
         className: 'up-dotnum',
         viewBox: `0 0 ${width} ${height}`,
+        width: w,
         height: size,
+        preserveAspectRatio: 'xMinYMid meet',
         fill: 'currentColor',
+        style: { width: `${w}px`, height: `${size}px`, flex: '0 0 auto' },
         'aria-hidden': 'true',
       }, rects)
     }
@@ -395,8 +399,8 @@ window.__ModuleLoader__.load({
       const amountParts = failed || phase === 'loading' ? null : splitAmount(balance)
       const digitsCount = amountParts ? amountParts.major.length : 2
       const scale = wide ? 1 : 0.5
-      const majorSize = (digitsCount <= 4 ? 25 : digitsCount === 5 ? 21 : 18) * scale
-      const minorSize = (digitsCount <= 4 ? 16 : digitsCount === 5 ? 14 : 12) * scale
+      const majorSize = (digitsCount <= 4 ? 20 : digitsCount === 5 ? 17 : 15) * scale
+      const minorSize = (digitsCount <= 4 ? 13 : digitsCount === 5 ? 11 : 10) * scale
 
       const body = h('div', { className: `up-card${peak ? ' up-peak' : ''}${phase === 'error' || (data && data.ok === false) ? ' up-off' : ''}` },
         h('div', {
@@ -417,7 +421,7 @@ window.__ModuleLoader__.load({
               h('span', { className: 'up-amount' },
                 h('i', { className: 'up-cur' }, '¥'),
                 dotNumber(amountParts ? amountParts.major : '--', majorSize),
-                amountParts && h('span', { className: 'up-dec' },
+                amountParts && wide && h('span', { className: 'up-dec' },
                   h('i', { className: 'up-point' }, '.'),
                   dotNumber(amountParts.minor, minorSize),
                 ),
@@ -495,22 +499,22 @@ window.__ModuleLoader__.load({
 .up-wrap .up-body{position:relative;z-index:2;background:var(--up-surface);border:1px solid var(--up-line);
   border-radius:11px;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 3px 8px -6px rgba(12,20,17,.3)}
 :is(html,body)[data-ds-dark-theme] .up-wrap .up-body{box-shadow:none}
-.up-wrap .up-mouth{height:5px;margin:6px 7px 0;border-radius:2.5px;background:var(--up-mouth);
+.up-wrap .up-mouth{height:4px;margin:5px 7px 0;border-radius:2.5px;background:var(--up-mouth);
   box-shadow:inset 0 1.5px 2px -.5px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.45)}
 .up-wrap .up-sliver{position:absolute;z-index:1;left:15px;right:15px;bottom:calc(100% - 7px);height:6px;
   background:var(--up-surface);border:1px solid var(--up-line);border-bottom:0;border-radius:3px 3px 0 0}
-.up-wrap .up-screen{position:relative;margin:8px 9px 10px;background:var(--up-screen);border-radius:6px;padding:8px 9px;overflow:hidden}
+.up-wrap .up-screen{position:relative;margin:6px 9px 8px;background:var(--up-screen);border-radius:6px;padding:6px 8px 5px;overflow:hidden}
 .up-wrap .up-leds{position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(circle at 1px 1px,var(--up-dot) 1px,transparent 1.1px);background-size:5px 5px;background-position:1px 2px}
 .up-wrap .up-leds.up-lit{background-image:radial-gradient(circle at 1px 1px,var(--up-led) 1.15px,transparent 1.25px);opacity:.30}
 .up-wrap .up-top{position:relative;z-index:3;display:flex;align-items:flex-end;justify-content:space-between}
 .up-wrap .up-amount{display:flex;align-items:flex-end;gap:2px;color:var(--up-ink);min-width:0}
-.up-wrap .up-cur{font-style:normal;font-size:9px;font-weight:600;color:var(--up-ink3);margin-bottom:4px;margin-right:2px}
-.up-wrap .up-dec{display:flex;align-items:flex-end;gap:1px;color:var(--up-ink2);margin-bottom:3px;margin-left:3px}
+.up-wrap .up-cur{font-style:normal;font-size:8.5px;font-weight:600;color:var(--up-ink3);margin-bottom:3px;margin-right:2px}
+.up-wrap .up-dec{display:flex;align-items:flex-end;gap:1px;color:var(--up-ink2);margin-bottom:2px;margin-left:3px}
 .up-wrap .up-point{font-style:normal;font-size:9px;font-weight:700;color:var(--up-ink2);margin-bottom:2px}
 .up-wrap .up-dotnum{display:block;fill:currentColor}
-.up-wrap .up-tier{font-size:9px;letter-spacing:.14em;color:var(--up-led);font-weight:500;padding-bottom:5px;white-space:nowrap}
-.up-wrap .up-band{position:relative;z-index:2;display:block;width:100%;height:20px;margin-top:4px}
+.up-wrap .up-tier{font-size:8.5px;letter-spacing:.14em;color:var(--up-led);font-weight:500;padding-bottom:4px;white-space:nowrap}
+.up-wrap .up-band{position:relative;z-index:2;display:block;width:100%;height:16px;margin-top:2px}
 .up-wrap .up-halo{fill:none;stroke:var(--up-screen-solid);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
 .up-wrap .up-line{fill:none;stroke:var(--up-led);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .up-wrap .up-dot{fill:var(--up-led)}
