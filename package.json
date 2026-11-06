@@ -1,6 +1,6 @@
 {
   "name": "@bingomu/dsh-usage-printer",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "侧栏小票机：点阵数字屏显示余额水位与峰谷，悬停出纸显示明细",
   "type": "module",
   "author": {
