@@ -288,6 +288,16 @@ window.__ModuleLoader__.load({
           h('span', null, '已充值'),
           h('b', null, money(peak, balance?.currency)),
         ),
+        h('div', { className: 'up-actions' },
+          h('a', {
+            className: 'up-link',
+            href: 'https://platform.deepseek.com/top_up',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            title: '在浏览器打开 DeepSeek 官方充值页',
+            onClick: (event) => event.stopPropagation(),
+          }, '去充值 ↗'),
+        ),
       )
       const rows = ok
         ? [
@@ -502,6 +512,10 @@ window.__ModuleLoader__.load({
 .up-wrap .up-row b{font-size:11px;font-weight:500;color:var(--up-ink);letter-spacing:-.02em}
 .up-wrap .up-row-head b{font-size:14px;font-weight:600}
 .up-wrap .up-head .up-row+.up-row{margin-top:2px}
+.up-wrap .up-actions{display:flex;justify-content:flex-end;margin-top:7px}
+.up-wrap .up-link{font-size:9px;letter-spacing:.04em;color:var(--up-ink2);text-decoration:none;
+  border-bottom:1px dotted var(--up-line);padding-bottom:1px;transition:color .15s ease,border-color .15s ease}
+.up-wrap .up-link:hover,.up-wrap .up-link:focus-visible{color:var(--up-led);border-bottom:1px solid var(--up-led);outline:none}
 .up-wrap .up-row-sub b{font-size:14px;font-weight:400;letter-spacing:0}
 .up-wrap .up-cut{height:1px;border-top:1px dashed var(--up-line);margin:9px 0 8px}
 .up-wrap .up-foot{display:flex;justify-content:space-between;gap:10px;font-size:7.5px;color:var(--up-ink3);letter-spacing:.12em;white-space:nowrap}
