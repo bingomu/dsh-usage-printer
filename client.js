@@ -7,22 +7,22 @@ window.__ModuleLoader__.load({
 
     /* ── 3×5 点阵字形 ─────────────────────────────────────── */
     const GLYPHS = {
-      0: ['111', '101', '101', '101', '111'],
-      1: ['010', '110', '010', '010', '111'],
-      2: ['111', '001', '111', '100', '111'],
-      3: ['111', '001', '111', '001', '111'],
-      4: ['101', '101', '111', '001', '001'],
-      5: ['111', '100', '111', '001', '111'],
-      6: ['111', '100', '111', '101', '111'],
-      7: ['111', '001', '010', '010', '010'],
-      8: ['111', '101', '111', '101', '111'],
-      9: ['111', '101', '111', '001', '111'],
-      '-': ['000', '000', '111', '000', '000'],
+      0: ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+      1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+      2: ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
+      3: ['11111', '00010', '00100', '00010', '00001', '10001', '01110'],
+      4: ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+      5: ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+      6: ['00110', '01000', '10000', '11110', '10001', '10001', '01110'],
+      7: ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+      8: ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+      9: ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
+      '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
     }
 
-    function dotNumber(text) {
-      const px = 2.4
-      const gap = 1
+    function dotNumber(text, size = 24, extra = 1.4) {
+      const px = 1.6
+      const gap = 1.0
       const pitch = px + gap
       const chars = String(text).split('')
       const rects = []
@@ -30,7 +30,7 @@ window.__ModuleLoader__.load({
       for (const ch of chars) {
         const glyph = GLYPHS[ch]
         if (!glyph) {
-          x += 4 * pitch
+          x += 5 * pitch + extra
           continue
         }
         for (let row = 0; row < glyph.length; row += 1) {
@@ -42,19 +42,19 @@ window.__ModuleLoader__.load({
                 y: row * pitch,
                 width: px,
                 height: px,
-                rx: 0.5,
+                rx: 0.35,
               }))
             }
           }
         }
-        x += 4 * pitch
+        x += 5 * pitch + extra
       }
-      const width = x - pitch
-      const height = 5 * pitch - gap
+      const width = x - pitch - extra
+      const height = 7 * pitch - gap
       return h('svg', {
         className: 'up-dotnum',
         viewBox: `0 0 ${width} ${height}`,
-        height: 18,
+        height: size,
         fill: 'currentColor',
         'aria-hidden': 'true',
       }, rects)
@@ -245,6 +245,15 @@ window.__ModuleLoader__.load({
       return `${symbol}${value.toFixed(2)}`
     }
 
+    /** 金额拆成主数字（元，整数）与副数字（角分），上限百万。 */
+    function splitAmount(value) {
+      if (typeof value !== 'number' || !Number.isFinite(value)) return null
+      const capped = Math.min(Math.max(value, 0), 9_999_999.99)
+      const major = Math.floor(capped).toString()
+      const minor = Math.round((capped - Math.floor(capped)) * 100).toString().padStart(2, '0')
+      return { major, minor, overflow: value > 9_999_999.99 }
+    }
+
     function tierName(peak) {
       return peak ? '峰价' : '谷价'
     }
@@ -288,16 +297,6 @@ window.__ModuleLoader__.load({
           h('span', null, '已充值'),
           h('b', null, money(peak, balance?.currency)),
         ),
-        h('div', { className: 'up-actions' },
-          h('a', {
-            className: 'up-link',
-            href: 'https://platform.deepseek.com/top_up',
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            title: '在浏览器打开 DeepSeek 官方充值页',
-            onClick: (event) => event.stopPropagation(),
-          }, '去充值 ↗'),
-        ),
       )
       const rows = ok
         ? [
@@ -333,6 +332,14 @@ window.__ModuleLoader__.load({
           h('div', { className: 'up-foot' },
             h('span', null, (data?.model || 'deepseek').toUpperCase()),
             h('span', null, '¥ / 百万 TOKEN'),
+            h('a', {
+              className: 'up-link',
+              href: 'https://platform.deepseek.com/top_up',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              title: '在浏览器打开 DeepSeek 官方充值页',
+              onClick: (event) => event.stopPropagation(),
+            }, '充值 ↗'),
           ),
         ),
       )
@@ -384,8 +391,12 @@ window.__ModuleLoader__.load({
       const nowY = peak ? PEAK_Y : VALLEY_Y
 
       const failed = phase === 'error' || (data && data.ok === false)
-      const digits = phase === 'loading' ? '--' : ready ? String(pct) : '--'
       const lit = ready ? pct : 0
+      const amountParts = failed || phase === 'loading' ? null : splitAmount(balance)
+      const digitsCount = amountParts ? amountParts.major.length : 2
+      const scale = wide ? 1 : 0.5
+      const majorSize = (digitsCount <= 4 ? 25 : digitsCount === 5 ? 21 : 18) * scale
+      const minorSize = (digitsCount <= 4 ? 16 : digitsCount === 5 ? 14 : 12) * scale
 
       const body = h('div', { className: `up-card${peak ? ' up-peak' : ''}${phase === 'error' || (data && data.ok === false) ? ' up-off' : ''}` },
         h('div', {
@@ -403,7 +414,14 @@ window.__ModuleLoader__.load({
             h('div', { className: 'up-leds' }),
             h('div', { className: 'up-leds up-lit', style: { clipPath: `inset(0 ${100 - lit}% 0 0)` } }),
             h('div', { className: 'up-top' },
-              h('span', { className: 'up-pct' }, dotNumber(digits), h('i', null, '%')),
+              h('span', { className: 'up-amount' },
+                h('i', { className: 'up-cur' }, '¥'),
+                dotNumber(amountParts ? amountParts.major : '--', majorSize),
+                amountParts && h('span', { className: 'up-dec' },
+                  h('i', { className: 'up-point' }, '.'),
+                  dotNumber(amountParts.minor, minorSize),
+                ),
+              ),
               h('span', { className: 'up-tier' }, failed ? '暂停' : peak ? '峰价' : '谷价'),
             ),
             h('svg', {
@@ -422,7 +440,7 @@ window.__ModuleLoader__.load({
       )
 
       const label = ready
-        ? `账户用量，${tierName(peak)}，剩余 ${pct}%`
+        ? `账户余额 ${money(balance, data?.balance?.currency)}，${tierName(peak)}`
         : '账户用量'
       return h('div', {
         ref: cardRef,
@@ -486,10 +504,12 @@ window.__ModuleLoader__.load({
   background-image:radial-gradient(circle at 1px 1px,var(--up-dot) 1px,transparent 1.1px);background-size:5px 5px;background-position:1px 2px}
 .up-wrap .up-leds.up-lit{background-image:radial-gradient(circle at 1px 1px,var(--up-led) 1.15px,transparent 1.25px);opacity:.30}
 .up-wrap .up-top{position:relative;z-index:3;display:flex;align-items:flex-end;justify-content:space-between}
-.up-wrap .up-pct{display:flex;align-items:flex-end;gap:2px;color:var(--up-ink2)}
+.up-wrap .up-amount{display:flex;align-items:flex-end;gap:2px;color:var(--up-ink);min-width:0}
+.up-wrap .up-cur{font-style:normal;font-size:9px;font-weight:600;color:var(--up-ink3);margin-bottom:4px;margin-right:2px}
+.up-wrap .up-dec{display:flex;align-items:flex-end;gap:1px;color:var(--up-ink2);margin-bottom:3px;margin-left:3px}
+.up-wrap .up-point{font-style:normal;font-size:9px;font-weight:700;color:var(--up-ink2);margin-bottom:2px}
 .up-wrap .up-dotnum{display:block;fill:currentColor}
-.up-wrap .up-pct i{font-style:normal;font-size:8.5px;font-weight:600;color:var(--up-ink3);margin-bottom:2px}
-.up-wrap .up-tier{font-size:9px;letter-spacing:.14em;color:var(--up-led);font-weight:500;padding-bottom:2px}
+.up-wrap .up-tier{font-size:9px;letter-spacing:.14em;color:var(--up-led);font-weight:500;padding-bottom:5px;white-space:nowrap}
 .up-wrap .up-band{position:relative;z-index:2;display:block;width:100%;height:20px;margin-top:4px}
 .up-wrap .up-halo{fill:none;stroke:var(--up-screen-solid);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
 .up-wrap .up-line{fill:none;stroke:var(--up-led);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -512,10 +532,10 @@ window.__ModuleLoader__.load({
 .up-wrap .up-row b{font-size:11px;font-weight:500;color:var(--up-ink);letter-spacing:-.02em}
 .up-wrap .up-row-head b{font-size:14px;font-weight:600}
 .up-wrap .up-head .up-row+.up-row{margin-top:2px}
-.up-wrap .up-actions{display:flex;justify-content:flex-end;margin-top:7px}
-.up-wrap .up-link{font-size:9px;letter-spacing:.04em;color:var(--up-ink2);text-decoration:none;
-  border-bottom:1px dotted var(--up-line);padding-bottom:1px;transition:color .15s ease,border-color .15s ease}
-.up-wrap .up-link:hover,.up-wrap .up-link:focus-visible{color:var(--up-led);border-bottom:1px solid var(--up-led);outline:none}
+.up-wrap .up-link{font-size:7.5px;letter-spacing:.12em;color:var(--up-ink3);text-decoration:none;
+  transition:color .15s ease}
+.up-wrap .up-link:hover,.up-wrap .up-link:focus-visible{color:var(--up-ink);text-decoration:underline;
+  text-underline-offset:2px;outline:none}
 .up-wrap .up-row-sub b{font-size:14px;font-weight:400;letter-spacing:0}
 .up-wrap .up-cut{height:1px;border-top:1px dashed var(--up-line);margin:9px 0 8px}
 .up-wrap .up-foot{display:flex;justify-content:space-between;gap:10px;font-size:7.5px;color:var(--up-ink3);letter-spacing:.12em;white-space:nowrap}
