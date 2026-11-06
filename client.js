@@ -20,6 +20,81 @@ window.__ModuleLoader__.load({
       '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
     }
 
+    const PITCH = 2.6
+    const DOT = 1.6
+
+    /** 生成一段数字的点阵，返回 { rects, width(单位), height(单位) }。 */
+    function glyphGroup(text, prefix, extra = 1.4) {
+      const rects = []
+      let x = 0
+      for (const ch of String(text)) {
+        const glyph = GLYPHS[ch]
+        if (!glyph) { x += 5 * PITCH + extra; continue }
+        for (let row = 0; row < glyph.length; row += 1) {
+          for (let col = 0; col < glyph[row].length; col += 1) {
+            if (glyph[row][col] === '1') {
+              rects.push(h('rect', {
+                key: `${prefix}-${x}-${row}-${col}`,
+                x: x + col * PITCH,
+                y: row * PITCH,
+                width: DOT,
+                height: DOT,
+                rx: 0.35,
+              }))
+            }
+          }
+        }
+        x += 5 * PITCH + extra
+      }
+      return { rects, width: x - PITCH - extra + (PITCH - DOT), height: 7 * PITCH - (PITCH - DOT) }
+    }
+
+    /** 整行金额（¥ 元 . 角分）画在一张 SVG 里，不依赖 CSS 排版。 */
+    function amountSvg(major, minor, size1, size2, showMinor = true) {
+      const a = glyphGroup(major, 'a')
+      const b = minor != null && showMinor ? glyphGroup(minor, 'b') : null
+      const s1 = size1 / a.height
+      const s2 = b ? size2 / b.height : s1
+      const curSize = Math.round(size1 * 0.42)
+      const gapCur = Math.round(size1 * 0.16)
+      const gapDot = Math.round(size1 * 0.22)
+      const curWidth = curSize * 0.62
+      const w1 = a.width * s1
+      const w2 = b ? b.width * s2 : 0
+      const dotWidth = b ? Math.max(2.5, size1 * 0.2) : 0
+      const total = curWidth + gapCur + w1 + (b ? gapDot + dotWidth + gapDot + w2 : 0)
+      const height = Math.max(size1, size2)
+      const baseline = height - Math.round(height * 0.15)
+
+      const children = [
+        h('text', {
+          key: 'cur',
+          x: 0,
+          y: baseline,
+          fontSize: curSize,
+          fontWeight: 600,
+          fill: 'var(--up-ink3)',
+        }, '¥'),
+        h('g', { key: 'major', transform: `translate(${(curWidth + gapCur).toFixed(2)}, ${(height - size1).toFixed(2)}) scale(${s1.toFixed(4)})`, fill: 'var(--up-ink)' }, a.rects),
+      ]
+      if (b) {
+        const dx = curWidth + gapCur + w1 + gapDot
+        children.push(
+          h('text', { key: 'dot', x: dx.toFixed(2), y: baseline, fontSize: Math.max(8, size1 * 0.34), fontWeight: 700, fill: 'var(--up-ink2)' }, '.'),
+          h('g', { key: 'minor', transform: `translate(${(dx + dotWidth + gapDot).toFixed(2)}, ${(height - size2).toFixed(2)}) scale(${s2.toFixed(4)})`, fill: 'var(--up-ink2)' }, b.rects),
+        )
+      }
+      return h('svg', {
+        className: 'up-amount-svg',
+        viewBox: `0 0 ${total.toFixed(2)} ${height}`,
+        width: total.toFixed(2),
+        height,
+        preserveAspectRatio: 'xMinYMid meet',
+        'aria-hidden': 'true',
+        style: { display: 'block', width: `${total.toFixed(2)}px`, height: `${height}px`, flex: '0 0 auto' },
+      }, children)
+    }
+
     function dotNumber(text, size = 24, extra = 1.4) {
       const px = 1.6
       const gap = 1.0
@@ -418,14 +493,12 @@ window.__ModuleLoader__.load({
             h('div', { className: 'up-leds' }),
             h('div', { className: 'up-leds up-lit', style: { clipPath: `inset(0 ${100 - lit}% 0 0)` } }),
             h('div', { className: 'up-top' },
-              h('span', { className: 'up-amount' },
-                h('i', { className: 'up-cur' }, '¥'),
-                dotNumber(amountParts ? amountParts.major : '--', majorSize),
-                amountParts && wide && h('span', { className: 'up-dec' },
-                  h('i', { className: 'up-point' }, '.'),
-                  dotNumber(amountParts.minor, minorSize),
-                ),
-              ),
+              amountParts
+                ? amountSvg(amountParts.major, amountParts.minor, majorSize, minorSize, wide)
+                : h('span', { className: 'up-amount' },
+                    h('i', { className: 'up-cur' }, '¥'),
+                    dotNumber('--', majorSize),
+                  ),
               h('span', { className: 'up-tier' }, failed ? '暂停' : peak ? '峰价' : '谷价'),
             ),
             h('svg', {
